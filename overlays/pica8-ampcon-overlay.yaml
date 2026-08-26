@@ -1,0 +1,116 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the Pica8 AmpCon Network Controller API
+  version: 1.0.0
+  x-generated: '2026-08-26'
+  x-method: generated
+  x-source: >-
+    Captures the API Evangelist enrichment layer applied on top of
+    openapi/pica8-ampcon-openapi.yml, which was itself transcribed from Pica8's published AmpCon API document at
+    https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document. This overlay records what
+    API Evangelist ADDED - agent-safety classification, reversal bindings and the runtime warnings a caller needs -
+    so that our additions stay separable from Pica8's own contract.
+extends: openapi/pica8-ampcon-openapi.yml
+actions:
+  - target: $.info
+    description: Record the enrichment pass that produced the derived artifacts alongside this spec.
+    update:
+      x-api-evangelist:
+        enriched: '2026-08-26'
+        pass: local-v1
+        artifacts:
+          authentication: authentication/pica8-authentication.yml
+          conventions: conventions/pica8-conventions.yml
+          errors: errors/pica8-problem-types.yml
+          data_model: data-model/pica8-data-model.yml
+          lifecycle: lifecycle/pica8-lifecycle.yml
+          changelog: changelog/pica8-changelog.yml
+          conformance: conformance/pica8-conformance.yml
+          skills: skills/_index.yml
+  - target: $
+    description: State plainly that error signalling is body-carried, so no generated client trusts the status line.
+    update:
+      x-error-signalling:
+        location: response-body
+        code_fields: [status, status_code]
+        message_fields: [msg, message, info]
+        rfc9457: false
+        guidance: >-
+          Do not branch on the HTTP status line alone. AmpCon reports 400 and 500 conditions inside the JSON body,
+          and the field names vary by module.
+  - target: $.paths['/api/backup_config/rollback'].post
+    description: Mark the rollback operation as the reversal path for configuration change, with its window recorded as unknown.
+    update:
+      x-reversal:
+        reverses: [pushConfigFileToSwitch, updateSwitchConfig, generateSwitchConfig]
+        requires: an existing snapshot created by backupSwitchConfiguration
+        window: null
+        window_documented: false
+        note: Pica8 publishes no snapshot retention period. Never assume one.
+  - target: $.paths['/api/switch/decom'].post
+    description: Mark DECOM as destructive and as the reversal of deployment.
+    update:
+      x-agentic-access:
+        action_class: destructive
+        consequence: high
+        escalation: human-approval
+      x-reversal:
+        reverses: [stageSwitch, importSwitch]
+        window: null
+        window_documented: false
+        precondition: AmpCon must be able to reach the switch; otherwise the call fails with "cannot connect to switch, please check".
+  - target: $.paths['/api/config_files/push'].post
+    description: Flag configuration push as a high-consequence write with a documented rehearsal path.
+    update:
+      x-agentic-access:
+        action_class: write
+        consequence: high
+        escalation: human-approval
+      x-dry-run:
+        rehearse_with: [verifyGeneratedConfiguration, compareBackupWithRunningConfig]
+        note: Diff before you push. Both comparison operations are read-only.
+  - target: $.paths['/api/settings/system_config'].get
+    description: Warn that this read returns live credentials in plaintext.
+    update:
+      x-agentic-access:
+        action_class: read
+        consequence: high
+        sensitivity: credentials
+        escalation: deny-by-default
+      x-sensitive-response-fields:
+        - license_portal_password
+        - switch_op_password
+      x-warning: >-
+        This operation returns the license portal password and the switch SSH operation password in plaintext to
+        any superadmin token holder. It should not be exposed to an agent.
+  - target: $.paths['/api/settings/update_user'].get
+    description: Flag the user-administration operation as a privilege-escalation surface and record the method inconsistency.
+    update:
+      x-agentic-access:
+        action_class: admin
+        consequence: high
+        escalation: deny-by-default
+      x-contract-defect:
+        issue: >-
+          The published document lists this operation as a GET while also specifying a JSON request body. Some HTTP
+          clients and intermediaries will not send a body on GET. Confirm the actual method against the AmpCon
+          build in use before relying on it.
+  - target: $.paths['/api/switch/groups/update'].post
+    description: Record that this single path is overloaded for both update and delete.
+    update:
+      x-contract-defect:
+        issue: >-
+          Pica8's document assigns POST /api/switch/groups/update to BOTH group update and group delete. The
+          operation performed depends on which fields the body carries. A caller that sends a partial body
+          intending an update may delete the group.
+        severity: high
+  - target: $.components.securitySchemes.bearerAuth
+    description: Record the superadmin-only constraint as a machine-readable authorization note.
+    update:
+      x-authorization-model:
+        scopes: none
+        roles_recognised: [readonly, operator, admin, superadmin]
+        api_access_requires: superadmin
+        note: >-
+          AmpCon has four user roles but only one of them can use the API at all. There is no scoped or
+          least-privilege API credential - an API caller is always a full administrator.

@@ -1,0 +1,36 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  Full read of the Pica8 AmpCon API document
+  (https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document, attachment
+  "AmpCon 1.12.0 API document 20230625.docx") and the PICOS 4.8 RESTCONF pages; searched 2026-08-26
+limit_count: 0
+documented: false
+finding: >-
+  No rate limit is published for any Pica8 API. The AmpCon API document - which does enumerate every error
+  response per operation - contains no 429, no quota, no throttle and no Retry-After anywhere in its 58 pages, and
+  the PICOS RESTCONF documentation states no limit either. This is consistent with the deployment model: both
+  APIs run on hardware the operator owns, so there is no shared multi-tenant capacity for Pica8 to ration. The
+  practical limits are the controller VM's own capacity and the switch's management-plane CPU, neither of which
+  Pica8 quantifies.
+response_headers:
+  documented: false
+  observed: false
+  standard_headers: []
+  note: >-
+    No X-RateLimit-*, RateLimit-* or Retry-After header is documented on any response. No header could be observed
+    live either: there is no Pica8-hosted endpoint to probe - AmpCon is reached at https://<ampcon-server-ip>/ on
+    the customer's own network.
+exhaustion_status_code: null
+limits: []
+adjacent_capacity_limits:
+  note: >-
+    Two capacity numbers appear in the published surface but neither is a request rate limit, and neither is
+    asserted here as one.
+  items:
+  - value: 'retrieve_config_num: 80'
+    source: 'GET /api/settings/system_config response'
+    meaning: undefined in the document
+  - value: 'parking lot register column maximum 32768'
+    source: 'AmpCon 1.12.0 release note, ticket 851 - a MySQL column overflow bug, since fixed'
+    meaning: storage limit, not a rate limit

@@ -1,0 +1,39 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  https://www.pica8.com/products/, https://www.pica8.com/pica8-software-platform/,
+  https://www.pica8.com/partners/ampcon-licensing-information/, https://www.pica8.com/picos-v-download/,
+  https://www.pica8.com/ampcon-downloads/ - all fetched 2026-08-26
+plan_count: 0
+currency: null
+public_pricing: false
+api_metered: false
+finding: >-
+  Pica8 publishes no price, no tier table and no plan names. https://www.pica8.com/pricing/ returns 404 and no
+  pricing page exists anywhere in the sitemap. The one page that names licensing detail,
+  /partners/ampcon-licensing-information/, is gated: it returns 200 but the body says "A Partner account is
+  required to view this page" and links to partner registration. Commercial terms are sold through the reseller
+  and partner channel, with deal registration - the classic enterprise networking motion.
+what_is_published:
+  model: >-
+    Pica8 describes a "Simple, Single License" model in prose: one license covers the AmpCon Network Controller
+    plus blocks of PicOS software, is perpetual ("You buy it once, run it anywhere, swapping hardware as you need
+    ... forever"), and carries no port-count or performance restriction across PoE, multi-gig, 1G, 25G and 100G
+    switches. Subscription licenses and speed-class licenses (S25G, S40G, 400G) exist as AmpCon deployment options
+    per the 1.11.0 release notes, but none is priced publicly.
+  free_evaluation:
+    available: true
+    detail: >-
+      Both the AmpCon Network Controller and the PicOS-V virtual software switch are offered as free downloads for
+      evaluation, with "No license required for virtual software trial". This is a gated download, not a
+      self-serve account.
+    urls:
+    - https://www.pica8.com/picos-v-download/
+    - https://www.pica8.com/ampcon-downloads/
+api_pricing:
+  billable: false
+  detail: >-
+    The AmpCon REST API and the PICOS RESTCONF/NETCONF/gNMI interfaces are features of software the customer has
+    already licensed and installed. There is no per-call, per-seat or per-quota API charge, and no API key to buy -
+    the only credential is a login on the customer's own controller or switch.
+plans: []

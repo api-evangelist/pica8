@@ -1,0 +1,191 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  Pica8 AmpCon API document (https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document)
+  and PICOS 4.8 RESTCONF pages, cross-derived from openapi/pica8-ampcon-openapi.yml
+apis:
+- Pica8 AmpCon Network Controller API
+- PICOS RESTCONF / NETCONF / gNMI Device API
+
+auth_style:
+  ampcon: JWT bearer token in the Authorization header, minted from POST /token; superadmin only.
+  restconf: HTTP Basic against switch-local accounts.
+  netconf: SSH transport with RADIUS/TACACS+ authorization.
+  see: authentication/pica8-authentication.yml
+
+transport:
+  scheme: https
+  hosting: >-
+    Customer-deployed. Every base URL is the operator's own AmpCon appliance or switch; Pica8 hosts no API
+    endpoint. AmpCon is addressed as https://<ampcon-server-ip>/ and RESTCONF as https://<device-ip>:<port>/restconf.
+  content_type: application/json (AmpCon); application/yang-data+json or application/yang-data+xml (RESTCONF)
+
+http_method_use:
+  style: RPC-over-POST
+  detail: >-
+    AmpCon is not resource-oriented. Reads are GET, but every mutation - create, update AND delete - is a POST to a
+    verb-suffixed path (/api/templates/add, /api/templates/update, /api/templates/delete). PUT, PATCH and DELETE are
+    not used anywhere in the published contract. The one exception to the read/write split is
+    GET /api/settings/update_user, which the published document lists as a GET carrying a JSON body.
+  contrast: >-
+    PICOS RESTCONF on the switch is the opposite: it is a standards-conformant RFC 8040 surface supporting
+    OPTIONS, HEAD, GET, POST, PATCH, PUT and DELETE over YANG-modelled data at /restconf/data.
+
+error_envelope:
+  style: body-carried status code
+  detail: >-
+    AmpCon reports outcome inside the JSON body, not (reliably) on the HTTP status line. Success and failure share
+    the same envelope: a numeric or string `status` or `status_code` field of 200 / 400 / 500 plus a human-readable
+    message. The message key is INCONSISTENT across the API - `msg`, `message` and `info` are all used, and
+    `status` vs `status_code` varies by module, so a client cannot key on one field name.
+  fields_observed: [msg, message, info, status, status_code]
+  rfc9457: false
+  machine_readable_codes: false
+  detail_note: >-
+    There are no stable machine-readable error codes. Failures are distinguished only by English prose, some of it
+    with interpolated values ("The sn:EC18150004361 switch decom failed, error: cannot find switch ..."), which
+    means an agent must string-match to branch.
+  see: errors/pica8-problem-types.yml
+
+pagination:
+  supported: false
+  detail: >-
+    No pagination is documented on any AmpCon collection endpoint. /api/switch/all_switch_list,
+    /api/switch/log, /api/templates and /api/switch/groups all return the complete array. No limit, offset,
+    cursor or page parameter appears anywhere in the published contract.
+
+filtering:
+  supported: partial
+  detail: >-
+    Filtering exists only as path-segment lookup by natural key: /api/templates/<template-name>,
+    /api/global_config/<global-config-name>, /api/switch_config/<switch_config_name>,
+    /api/switch/switch_list/<switch-sn>, /api/backup_config/<switch-sn>/<backup-date>. There are no query-string
+    filters. Tag support was added for templates, playbooks and backup snapshots in the 2023-01-18 revision, but
+    the document does not describe a tag filter parameter.
+
+field_expansion:
+  supported: false
+sparse_fieldsets:
+  supported: false
+metadata:
+  supported: partial
+  detail: >-
+    Free-text `description`, `remark` and `tag` fields exist on templates, playbooks, groups and backup snapshots.
+    There is no structured user-defined metadata map.
+
+request_id_tracing:
+  supported: false
+  detail: >-
+    No request-id or correlation header is documented on request or response. AmpCon keeps its own operation log
+    at GET /api/switch/log (serial number, timestamp, message, severity, read status), which is the only audit
+    trail the API exposes - but log entries carry no identifier that ties back to the API call that caused them.
+
+versioning:
+  style: product-version, not API-version
+  detail: >-
+    There is no version segment in any URL and no version header. The API version is the AmpCon product version,
+    and the API document is republished as a new dated Word attachment per release
+    (AmpCon API document.docx for versions before 1.9.0, then 1.9.0 / 1.10.0 / 1.12.0). A consumer determines which
+    contract they are on from the controller build they installed, not from anything on the wire.
+  current_documented: 1.12.1
+  see: lifecycle/pica8-lifecycle.yml
+
+rate_limit_signaling:
+  supported: false
+  detail: No rate limits and no RateLimit/Retry-After response headers are documented. See rate-limits/pica8-rate-limits.yml.
+
+idempotency:
+  supported: false
+  grade: na
+  detail: >-
+    No idempotency key, no request de-duplication and no conditional-request support (ETag / If-Match) is documented
+    anywhere in the AmpCon contract. Several operations are naturally idempotent by name-keying (add fails with
+    "already exist" rather than duplicating; update overwrites), but that is a side effect of the natural key, not
+    a stated guarantee - and the physical operations are not: replaying POST /api/switch/import,
+    POST /api/backup_config/<sn> or POST /api/config_files/push re-runs work against real hardware.
+  natural_key_protection:
+  - operation: addTemplate
+    behaviour: 'returns {"msg": "Template <name> exists", "status_code": 500} rather than creating a duplicate'
+  - operation: addGlobalConfig
+    behaviour: 'returns {"msg": "ERROR:[Create failed, the config already exist!]", "status_code": 500}'
+  - operation: addSwitchGroup
+    behaviour: 'returns {"msg": "<group-name> group already exist", "status": 400}'
+  - operation: generateSwitchConfig
+    behaviour: 'returns {"msg": "ERROR:[Switch <switch_sn> already exist]", "status_code": 500}'
+  - operation: importSwitch
+    behaviour: 'returns {"msg": "sn EC1815000436 already exists in AmpCon", "status": 400}'
+
+dry_run_mode:
+  supported: true
+  grade: documented
+  detail: >-
+    AmpCon publishes two genuine rehearsal operations that compute a diff WITHOUT applying anything:
+    POST /api/templates/template_verify renders what the named global and site templates would generate for a
+    switch and diffs it against running-config or a backup, and POST /api/compare_config diffs a stored backup
+    snapshot against the running configuration. Both let an operator (or an agent) see the delta before a push.
+    There is no `dry_run` flag on the mutating operations themselves.
+  operations: [verifyGeneratedConfiguration, compareBackupWithRunningConfig]
+
+reversibility:
+  grade: documented
+  overall_note: >-
+    AmpCon has a real, first-class reversal path for the two highest-consequence write surfaces - configuration
+    change and switch deployment - and Pica8 documents both operations explicitly. What is NOT documented anywhere
+    is a WINDOW: the API document states no snapshot retention period, no rollback deadline and no
+    undo horizon for DECOM or RMA, so an agent cannot know how long a reversal remains available. That gap is why
+    this grades `documented` rather than `verified`. NEVER assume a retention window that Pica8 has not stated.
+  write_surfaces:
+  - surface: switch configuration change (push / generate / update)
+    reversal: rollback to a previously captured backup configuration snapshot
+    operation_id: rollbackBackupConfiguration
+    path: POST /api/backup_config/rollback
+    prerequisite: >-
+      A snapshot must already exist. Snapshots are created by POST /api/backup_config/<switch-sn>
+      (operationId backupSwitchConfiguration) and listed by GET /api/backup_config/<switch-sn>.
+    window: null
+    window_documented: false
+    window_note: >-
+      No retention period is published. The only adjacent published number is `retrieve_config_num: 80` in
+      GET /api/settings/system_config, which the document does not define as a snapshot retention count - it is
+      NOT asserted here as the rollback window.
+    docs: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document
+  - surface: switch deployment / onboarding
+    reversal: DECOM - removes the switch from AmpCon management and restores its default settings
+    operation_id: decommissionSwitch
+    path: POST /api/switch/decom
+    window: null
+    window_documented: false
+    window_note: >-
+      No time limit is stated. DECOM requires connectivity to the switch - it fails with
+      {"info": "cannot connect to switch, please check"} - so reversibility is conditional on the device
+      still being reachable, not on a clock.
+    docs: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document
+  - surface: hardware replacement
+    reversal: RMA transfers the saved deployment configuration from a failed serial number onto a replacement
+    operation_id: rmaSwitch
+    path: POST /api/switch/rma
+    window: null
+    window_documented: false
+    note: >-
+      RMA is a forward-recovery operation rather than an undo, but it is the documented way to restore service
+      state after a device loss, so it is recorded here.
+  - surface: object deletion (templates, global configs, config files, playbooks, groups, jobs)
+    reversal: none documented
+    window: null
+    window_documented: false
+    note: >-
+      There is no undelete, trash or restore path for any deleted object. The only guard is a referential check -
+      deleting a global configuration in use for a deployment is refused with
+      {"msg": "ERROR:[config is in use!]"}. Deletions are otherwise permanent as far as the contract states.
+  - surface: license application (license_action, group license_action)
+    reversal: none documented
+    window: null
+    window_documented: false
+
+cross_links:
+  errors: errors/pica8-problem-types.yml
+  lifecycle: lifecycle/pica8-lifecycle.yml
+  authentication: authentication/pica8-authentication.yml
+  rate_limits: rate-limits/pica8-rate-limits.yml
+  data_model: data-model/pica8-data-model.yml
+  conformance: conformance/pica8-conformance.yml

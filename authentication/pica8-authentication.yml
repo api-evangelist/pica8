@@ -1,0 +1,70 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  Pica8 AmpCon API document (https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document,
+  attachment "AmpCon 1.12.0 API document 20230625.docx"), PICOS 4.8 "Introduction of RESTCONF"
+  (https://pica8-fs.atlassian.net/wiki/spaces/Picos48white/pages/1157576061/Introduction+of+RESTCONF) and
+  "Configuring NETCONF" (https://pica8-fs.atlassian.net/wiki/spaces/Picos48white/pages/1157576481/Configuring+NETCONF),
+  cross-checked against openapi/pica8-ampcon-openapi.yml
+summary:
+  types:
+  - http
+  hosted_identity_provider: false
+  note: >-
+    Every Pica8 programmatic surface authenticates against the customer's own deployment. There is no Pica8-operated
+    identity provider, no OAuth 2.0 authorization server, no API key issuance portal and no /.well-known/
+    OpenID or OAuth metadata anywhere on pica8.com - all five paths were probed on 2026-08-26 and returned 404.
+schemes:
+- name: bearerAuth
+  api: Pica8 AmpCon Network Controller API
+  type: http
+  scheme: bearer
+  bearerFormat: JWT
+  in: header
+  header: Authorization
+  format: 'Authorization: Bearer <generated-token>'
+  token_endpoint: POST https://{ampcon-server-ip}/token
+  token_credential: AmpCon web login username + password, posted as JSON
+  privilege_requirement: >-
+    Only "superadmin" level AmpCon users may mint a token or call the API. A lower-privileged user receives
+    {"msg": "Permission denied, you should use \"superadmin\" user"}. This is the whole authorization model -
+    the API has no scopes and no per-operation permissions.
+  invalid_token_behaviour: 'Expired or invalid tokens are rejected with the message "Invalid Token".'
+  known_issues:
+  - >-
+    AmpCon 1.12.1 release notes, ticket 857: "AmpCon API JWT token shows invalid since requests will be routed
+    to different backend instances." Fixed in 1.12.1; operators on earlier multi-instance deployments saw
+    spurious invalid-token errors.
+  sources:
+  - openapi/pica8-ampcon-openapi.yml
+  - https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document
+- name: restconfBasic
+  api: PICOS RESTCONF / NETCONF / gNMI Device API
+  type: http
+  scheme: basic
+  in: header
+  header: Authorization
+  description: >-
+    PICOS RESTCONF supports HTTP Basic authentication only. The username and password are the accounts configured
+    for authentication on the RESTCONF server (the switch itself). Credentials are carried in the HTTPS request
+    from the RESTCONF client.
+  transport_note: >-
+    RESTCONF defaults to ports 80/443, which collide with the picos-web service. When picos-web is enabled a custom
+    RESTCONF port must be configured (`set protocols restconf port`) or RESTCONF returns authentication errors.
+  sources:
+  - https://pica8-fs.atlassian.net/wiki/spaces/Picos48white/pages/1157576061/Introduction+of+RESTCONF
+- name: netconfSsh
+  api: PICOS RESTCONF / NETCONF / gNMI Device API
+  type: other
+  scheme: ssh-with-aaa
+  description: >-
+    NETCONF sessions on a PICOS switch are opened over SSH and authorized through the switch's AAA configuration.
+    Pica8 documents that authenticated RADIUS and TACACS+ users can reach the switch over NETCONF.
+  sources:
+  - https://pica8-fs.atlassian.net/wiki/spaces/Picos48white/pages/1157576481/Configuring+NETCONF
+oauth:
+  present: false
+  reason: >-
+    No OAuth 2.0 or OpenID Connect surface is documented or served. /.well-known/openid-configuration and
+    /.well-known/oauth-authorization-server both returned 404 on www.pica8.com on 2026-08-26. scopes/ is
+    therefore intentionally absent.

@@ -1,0 +1,107 @@
+generated: '2026-08-26'
+method: searched
+source: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753831/AmpCon+Release+Notes
+also_source: >-
+  API contract change history from section 7 of the AmpCon API document
+  (https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document)
+product: AmpCon Network Controller
+scheme: semver-ish product releases (major.minor.patch), no dates published per release
+dated: false
+date_note: >-
+  Pica8's AmpCon release notes are NOT dated - each entry is a version heading and a list of features or a table of
+  fixed ticket IDs. Only the API document revisions carry dates. Every date below is therefore either from the API
+  document's own change history or explicitly null; none has been inferred.
+current_version: 1.14.1
+entries:
+- version: 1.14.1
+  date: null
+  type: patch
+  breaking: false
+  highlights:
+  - 'Fixed patch script function during the ZTP process (ticket 893).'
+  - 'License action can now be performed on a switch with no license installed (ticket 892).'
+  - 'Fixed Lifecycle > Push configuration when delete commands are included (ticket 890).'
+  - 'Upgrade is refused when the operator selects a lower PicOS version for a switch (ticket 889).'
+  - 'Sensitive key values are masked in Config/Template > Template Verify (ticket 886).'
+  - 'S5810 and S5860 switches automatically run save_config after a config push (ticket 884).'
+- version: 1.14.0
+  date: null
+  type: minor
+  breaking: false
+  highlights:
+  - 'New hardware support: FS S5870-48T6BC, S5870-48T6BC-U, S5870-48T6S, S5870-48T6S-U (ONIE).'
+  - 'New hardware support: FS S5860-24MG-U, S5860-48XMG-U, S5860-24XMG, S5860-48MG-U, S5860-48XMG (non-ONIE, no ZTP workflow).'
+- version: 1.13.1
+  date: null
+  type: patch
+  breaking: false
+  highlights:
+  - 'New hardware support: FS N8550-48B8C, N5850-48S6Q, N8550-32C (ONIE).'
+  - 'New hardware support: FS S5860-20SQ, S5860-24XB-U, S5810-48TS-P, S5810-28TS, S5810-28FS, S5810-48TS, S5810-48FS, N8560-32C (non-ONIE, no ZTP workflow).'
+- version: 1.13.0
+  date: null
+  type: minor
+  breaking: false
+  highlights:
+  - 'Multiple site configuration support in AmpCon.'
+  - 'Improved Push config under Config/Templates > Configuration Files View.'
+  - 'License check removed as a requirement in the Import process, to ease trial testing.'
+- version: 1.12.1
+  date: '2023-06-25'
+  date_source: AmpCon API document revision date; the release note itself is undated
+  type: patch
+  breaking: false
+  api_affecting: true
+  highlights:
+  - 'New hardware support: AS4625-54T, AS4625-54P, with a 4.4.1 CLI tree update.'
+  - 'Improved AmpCon role-based access control (RBAC).'
+  - 'Improved password security policy with manual and automatic user lock/unlock.'
+  - 'API FIX (ticket 857): JWT tokens read as invalid because requests were routed to different backend instances.'
+  - 'Fixed TACACS+ user chown failure on the pushed security file during deployment (ticket 868).'
+  - 'Fixed DECOM error when using local licenses (ticket 847).'
+  - 'Fixed PICOS VLAN member configuration being merged in show configuration output, which failed full configuration validation (ticket 864).'
+- version: 1.12.0
+  date: null
+  type: minor
+  breaking: false
+  highlights:
+  - 'Group user management.'
+  - 'Fixed MySQL connection close when the parking lot register grew past the column maximum of 32768 (ticket 851).'
+  - 'Fixed inability to reset MySQL/RabbitMQ passwords more than once during system setup (ticket 856).'
+  - 'Fixed MD5 file being ignored when uploaded alongside an image file (ticket 862).'
+  - 'Support uploading empty parking lot security / initial security configurations for ZTP (ticket 863).'
+- version: 1.11.1
+  date: null
+  type: patch
+  breaking: false
+  highlights:
+  - 'Fixed local license not usable for ZTP (ticket 841).'
+  - 'Fixed switch unable to DECOM when using local licenses (ticket 847).'
+  - 'Enlarged the maximum template / generated configuration size in the database column (ticket 848).'
+- version: 1.11.0
+  date: null
+  type: minor
+  breaking: false
+  highlights:
+  - 'Support deploy/import with S25G, S40G and 400G licenses.'
+  - 'Support deploy/import with subscription licenses.'
+api_contract_history:
+- date: '2022-03-14'
+  change: First version of the AmpCon API document.
+  breaking: false
+- date: '2022-10-27'
+  change: 'Corrected the wrong input params in the /api/config_files/push request.'
+  breaking: true
+  note: A documentation correction that changes what a conforming client must send.
+- date: '2022-10-28'
+  change: 'Added comparison endpoints among backup configs, generated config and running config (sections 3.5.1, 3.5.2).'
+  breaking: false
+- date: '2022-10-28'
+  change: 'Support using multiple templates to generate a switch configuration (no_generate_template_name).'
+  breaking: false
+- date: '2023-01-18'
+  change: 'Added tag support for template / playbook / backup configuration snapshot.'
+  breaking: false
+- date: '2023-06-25'
+  change: 'Support specifying user type (group | global) in /api/settings/update_user.'
+  breaking: false

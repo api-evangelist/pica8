@@ -1,0 +1,190 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  PICOS 4.8 Configuration Guide (Confluence space Picos48white) and the AmpCon API document, both on
+  https://pica8-fs.atlassian.net/wiki, cross-derived from openapi/pica8-ampcon-openapi.yml
+scope: >-
+  Two very different postures sit inside one company. The PICOS network operating system is deeply
+  standards-conformant on the device: it implements the IETF network-management stack (NETCONF, RESTCONF, YANG)
+  plus the ONF and OpenConfig control/telemetry protocols. The AmpCon controller's own north-bound REST API is
+  the opposite - proprietary RPC-over-POST with no cross-cutting standard adopted at all.
+standards:
+- id: restconf-rfc8040
+  name: RESTCONF (RFC 8040)
+  category: domain-standard
+  domain: network-management
+  conforms: true
+  surface: PICOS RESTCONF / NETCONF / gNMI Device API
+  evidence: >-
+    PICOS 4.8 "Introduction of RESTCONF" and "RESTCONF Operation Methods" document the RFC 8040 surface:
+    OPTIONS/HEAD/GET/POST/PATCH/PUT/DELETE against /restconf/data and
+    /restconf/data/{modulename}:{node}, CRUD over YANG-modelled datastores, the
+    application/yang-data+json and application/yang-data+xml media types, Accept-Patch advertisement on OPTIONS,
+    and the RFC 8040 status-code table (200/201/204/...). Configuration commands are published under
+    `set protocols restconf` with a `port` sub-command.
+  evidence_url: https://pica8-fs.atlassian.net/wiki/spaces/Picos48white/pages/1157576105/RESTCONF+Operation+Methods
+- id: netconf-rfc6241
+  name: NETCONF (RFC 6241)
+  category: domain-standard
+  domain: network-management
+  conforms: partial
+  surface: PICOS RESTCONF / NETCONF / gNMI Device API
+  evidence: >-
+    PICOS 4.8 "Configuring NETCONF" states support for <get>, <get-config>, <get-schema> and <edit-config> over
+    XML-encoded RPC with a client/server model, and documents the ncclient Python library as the reference client.
+  limitations:
+  - '<get> is documented as returning only system version information and VXLAN information - it is not a general operational-state retrieval.'
+  - 'The ncclient reference client requires a two-line patch to rpc.py (stripping the nc: namespace prefix) to interoperate with a Pica8 switch, which is a documented deviation from stock NETCONF client behaviour.'
+  evidence_url: https://pica8-fs.atlassian.net/wiki/spaces/Picos48white/pages/1157576481/Configuring+NETCONF
+- id: yang-rfc7950
+  name: YANG data modelling language (RFC 7950)
+  category: domain-standard
+  domain: network-management
+  conforms: true
+  surface: PICOS RESTCONF / NETCONF / gNMI Device API
+  evidence: >-
+    PICOS ships YANG modules on the device at /pica/etc/common/data-models, with device-type-specific modules
+    symlinked from a per-type path. Both NETCONF and RESTCONF operate against those models.
+  gap: >-
+    The YANG modules are shipped on the switch, not published. They are retrievable only from a device the operator
+    already owns, so no YANG artifact could be harvested for this repo.
+  evidence_url: https://pica8-fs.atlassian.net/wiki/spaces/Picos48white/pages/1157576061/Introduction+of+RESTCONF
+- id: netconf-monitoring-rfc6022
+  name: YANG Module for NETCONF Monitoring (RFC 6022) - get-schema
+  category: domain-standard
+  domain: network-management
+  conforms: true
+  evidence: >-
+    "Configuring NETCONF" documents using the get-schema operation to retrieve .yang or .yin module files from the
+    switch and cites RFC 6022 by number.
+  evidence_url: https://pica8-fs.atlassian.net/wiki/spaces/Picos48white/pages/1157576481/Configuring+NETCONF
+- id: gnmi
+  name: gNMI (gRPC Network Management Interface, OpenConfig)
+  category: domain-standard
+  domain: network-telemetry
+  conforms: partial
+  evidence: >-
+    "Configuring gNMI-gRPC Based Telemetry Technology" documents gNMI Get and Subscribe operations over gRPC, with
+    event-triggered and periodically-sampled data push, plus `set protocols` commands to enable gRPC and set the
+    listening port.
+  limitations:
+  - 'Dial-in mode only: the switch acts as gRPC server and the collector as gRPC client. Dial-out is not supported.'
+  - 'Only Get and Subscribe are documented; Set and Capabilities are not.'
+  evidence_url: https://pica8-fs.atlassian.net/wiki/spaces/Picos48white/pages/1157576500/Configuring+gNMI-gRPC+Based+Telemetry+Technology
+- id: openflow
+  name: OpenFlow 1.3 / 1.4 (Open Networking Foundation)
+  category: domain-standard
+  domain: sdn-control-plane
+  conforms: true
+  evidence: >-
+    The PICOS 4.8 guide publishes an OpenFlow Support Matrix plus separate "PicOS Support for OpenFlow 1.3",
+    "1.3.0", "1.4" and "1.4.0" pages, OpenFlow commands in CrossFlow mode, and controller integration guides for
+    OpenDaylight, RYU and Floodlight (including a Floodlight REST interface page and TTP router-profile use).
+    Pica8 was first to ship a commercial OpenFlow-based NOS in 2012.
+  evidence_url: https://pica8-fs.atlassian.net/wiki/spaces/Picos48white/pages/1157584507/OpenFlow+Support+Matrix
+- id: sflow-v5
+  name: sFlow v5
+  category: domain-standard
+  domain: network-telemetry
+  conforms: true
+  evidence: >-
+    "Configuring sFlow v5" plus a full `set protocols sflow` command family (collector, collector udp-port,
+    collector vrf, agent-id, source-address, sampling-rate ingress/egress, polling-interval, header-len, and
+    per-interface overrides).
+  evidence_url: https://pica8-fs.atlassian.net/wiki/spaces/Picos48white/pages/1157585068/Configuring+sFlow+v5
+- id: ovsdb
+  name: Open vSwitch Database Management Protocol (RFC 7047) / Open vSwitch
+  category: domain-standard
+  domain: sdn-control-plane
+  conforms: partial
+  confidence: medium
+  evidence: >-
+    PICOS is built on Open vSwitch: the ZTP API exposes get_ovs_config_file to fetch the OVS configuration database
+    ovs-vswitchd.conf.db, the guide documents ovs-appctl operational commands, and CrossFlow mode runs OVS
+    alongside L2/L3. Pica8 does not publish an explicit RFC 7047 conformance statement, so this is recorded as
+    partial rather than asserted.
+  evidence_url: https://pica8-fs.atlassian.net/wiki/spaces/Picos48white/pages/1157577273/OpenFlow+in+Crossflow+Mode
+- id: onie
+  name: ONIE (Open Network Install Environment, Open Compute Project)
+  category: domain-standard
+  domain: bare-metal-provisioning
+  conforms: true
+  evidence: >-
+    AmpCon's zero-touch provisioning workflow is ONIE-based, and the release notes explicitly split newly
+    supported FS hardware into "FS switches with ONIE support" and "FS switches without ONIE support", noting that
+    non-ONIE switches cannot use the ZTP workflow. The switch-model settings endpoint carries an
+    `up_to_date_onie_path` field pointing at an onie-installer image.
+  evidence_url: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753831/AmpCon+Release+Notes
+- id: snmp
+  name: SNMP
+  category: domain-standard
+  domain: network-monitoring
+  conforms: partial
+  confidence: medium
+  evidence: >-
+    Pica8 publishes an SNMP OID adapter as an open-source repository in its GitHub organisation
+    (https://github.com/pica8/snmp_oid_adapter, last pushed 2026-05-26) and documents a Zabbix monitoring
+    solution for PICOS. No MIB set is published in the harvestable documentation.
+- id: oauth2
+  name: OAuth 2.0
+  category: cross-cutting
+  conforms: false
+  evidence: >-
+    No OAuth 2.0 surface. AmpCon uses a self-issued JWT from POST /token; RESTCONF uses HTTP Basic; NETCONF uses
+    SSH with RADIUS/TACACS+. /.well-known/oauth-authorization-server returned 404 on www.pica8.com (2026-08-26).
+- id: oidc
+  name: OpenID Connect
+  category: cross-cutting
+  conforms: false
+  evidence: '/.well-known/openid-configuration returned 404 on www.pica8.com (2026-08-26).'
+- id: jwt-rfc7519
+  name: JSON Web Token (RFC 7519)
+  category: cross-cutting
+  conforms: true
+  evidence: >-
+    The AmpCon API document states "we use JWT bearer token to authenticate", minted at POST /token and carried as
+    `Authorization: Bearer <token>` per RFC 6750.
+- id: rfc9457
+  name: RFC 9457 Problem Details for HTTP APIs
+  category: cross-cutting
+  conforms: false
+  evidence: >-
+    AmpCon uses a proprietary body-carried envelope (msg/message/info plus status/status_code) with no
+    application/problem+json media type and no type URIs. See errors/pica8-problem-types.yml.
+- id: jsonapi
+  name: 'JSON:API'
+  category: cross-cutting
+  conforms: false
+  evidence: Responses are bare arrays and ad-hoc objects with no JSON:API document structure.
+- id: pagination
+  name: Collection pagination
+  category: cross-cutting
+  conforms: false
+  evidence: No limit/offset/cursor/page parameter appears on any AmpCon collection endpoint.
+- id: idempotency
+  name: Idempotency keys
+  category: cross-cutting
+  conforms: false
+  evidence: No idempotency key, conditional-request or de-duplication mechanism is documented. See conventions/pica8-conventions.yml.
+- id: openapi
+  name: OpenAPI Specification
+  category: cross-cutting
+  conforms: false
+  evidence: >-
+    Pica8 publishes its REST contract as dated Microsoft Word attachments on a Confluence page, not as OpenAPI.
+    openapi/pica8-ampcon-openapi.yml in this repo is an API Evangelist transcription, not a Pica8 artifact.
+- id: asyncapi
+  name: AsyncAPI
+  category: cross-cutting
+  conforms: false
+  applicable: false
+  evidence: >-
+    No webhook or event-callback surface exists on AmpCon. The streaming surface that does exist (gNMI Subscribe
+    over gRPC, sFlow v5 datagrams to a collector) is device telemetry described by its own standards, not an
+    HTTP event API, so AsyncAPI is not applicable.
+compliance_certifications:
+  published: false
+  detail: >-
+    No trust center, SOC 2, ISO 27001, PCI, HIPAA or FedRAMP certification page is published on www.pica8.com;
+    probe-security-programs.py found none on 2026-08-26. Certifications for the switching hardware belong to the
+    ODM/OEM vendors (Edgecore, UfiSpace, FS), not to Pica8's software.

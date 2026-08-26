@@ -1,0 +1,77 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753831/AmpCon+Release+Notes,
+  https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document (Change History, section 7),
+  https://www.pica8.com/picos-releases/, https://www.pica8.com/support/,
+  https://www.pica8.com/support/warranty-and-agreements/
+versioning:
+  scheme: product-release
+  in_url: false
+  header: null
+  current_documented_api_version: '1.12.1'
+  latest_product_version: 'AmpCon 1.14.1 (AmpCon Network Controller), plus AmpCon-DC 2.5 and AmpCon-Campus 2.3.0E as separate product lines'
+  detail: >-
+    The AmpCon REST API carries no version identifier on the wire. Its contract version is the AmpCon product
+    version, and each revision of the contract is published as a separate dated Word attachment on one wiki page.
+    Four revisions are published: "AmpCon API document.docx" (versions before 1.9.0), 1.9.0 (2022-10-28),
+    1.10.0 (2023-01-18) and 1.12.0 (2023-06-25).
+  gap: >-
+    The newest published API document is 1.12.0 / AmpCon 1.12.1, dated 2023-06-25, while the AmpCon product has
+    shipped through 1.13.0, 1.13.1, 1.14.0 and 1.14.1 since. Whatever API changes those four releases carried are
+    not reflected in any published contract. Two further product lines (AmpCon-DC, AmpCon-Campus) have their own
+    user guides and no published API document at all.
+deprecation:
+  policy_published: false
+  sunset_header: false
+  deprecation_header: false
+  rfc8594: false
+  detail: >-
+    Pica8 publishes no API deprecation policy, no Sunset or Deprecation response headers, and no advance-notice
+    commitment. The API document's Change History records changes after the fact - including at least one
+    behavioural correction ("Correct the wrong input params in /api/config_files/push", 2022-10-27) - but does not
+    label anything deprecated or announce removals.
+  deprecated_operations: []
+  breaking_change_evidence:
+  - date: '2022-10-27'
+    change: 'Corrected the input params of /api/config_files/push. A client written against the earlier document was wrong.'
+  - date: '2023-06-25'
+    change: 'Added user_type (group | global) to /api/settings/update_user - additive.'
+  - date: '2023-01-18'
+    change: 'Added tag support to template / playbook / backup configuration snapshot responses - additive.'
+  - date: '2022-10-28'
+    change: 'Added the backup/generated/running configuration comparison endpoints - additive.'
+  - date: '2022-10-28'
+    change: 'Site configuration generation accepts multiple templates (no_generate_template_name) - additive.'
+status_page:
+  published: false
+  detail: >-
+    No status page exists. status.pica8.com does not resolve (DNS NXDOMAIN, probed 2026-08-26) and no
+    status/uptime page is linked from www.pica8.com. This is consistent with the deployment model: AmpCon and PICOS
+    run on customer infrastructure, so there is no Pica8-operated service whose availability could be published.
+sla:
+  published: false
+  detail: >-
+    No numeric availability or response-time SLA is published on the public site. Support terms and hardware
+    warranty terms are published at https://www.pica8.com/support/warranty-and-agreements/, and support tiers are
+    described at https://www.pica8.com/support/, but neither states an uptime figure - again because the software
+    runs on customer premises.
+  support_url: https://www.pica8.com/support/
+  terms_url: https://www.pica8.com/support/warranty-and-agreements/
+release_channels:
+- name: PICOS releases
+  url: https://www.pica8.com/picos-releases/
+  note: Public release listing for the PICOS network operating system.
+- name: AmpCon Release Notes
+  url: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753831/AmpCon+Release+Notes
+  note: Per-version release notes with fixed-ticket tables; see changelog/pica8-changelog.yml.
+- name: AmpCon Upgrade Guide
+  url: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753805/AmpCon+Upgrade+Guide
+- name: Archived release documentation
+  url: https://www.pica8.com/archive_rel_doc/
+end_of_life:
+  policy_published: false
+  observed: >-
+    Documentation spaces for superseded PICOS versions (2.11.25 through 4.8) remain published side by side on the
+    wiki - 38 spaces as of 2026-08-26 - so historical contracts stay reachable, but no formal EOL calendar is
+    published.

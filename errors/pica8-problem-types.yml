@@ -1,0 +1,203 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  Error responses transcribed from the Pica8 AmpCon API document
+  (https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document, attachment
+  "AmpCon 1.12.0 API document 20230625.docx") and cross-derived from openapi/pica8-ampcon-openapi.yml 4xx/5xx responses
+api: Pica8 AmpCon Network Controller API
+format: proprietary
+rfc9457: false
+envelope:
+  content_type: application/json
+  detail: >-
+    Success and failure share one envelope. The outcome code lives in the BODY, in `status` or `status_code`, and
+    the human-readable reason in `msg`, `message` or `info`. Which pair is used varies by module - templates and
+    global configuration use msg/status_code, switch and group operations use msg/status, license operations use
+    message/status, and playbook/user operations use info/status (sometimes with the status as a STRING, e.g. "200").
+    There are no machine-readable error codes; clients must string-match the message.
+  fields:
+  - name: msg
+    type: string
+    note: most common message key
+  - name: message
+    type: string
+    note: used by the license audit/action operations
+  - name: info
+    type: string
+    note: used by playbook and user-update operations, and by the DECOM connectivity failure
+  - name: status
+    type: integer|string
+    note: 200 / 400 / 500; sometimes quoted as a string
+  - name: status_code
+    type: integer
+    note: used by the template and configuration modules
+problem_types:
+- id: invalid-credentials
+  http_status: 401
+  operation: createToken
+  message: 'Username or Password is incorrect'
+  cause: AmpCon web login username or password is wrong.
+  remediation: Correct the credentials. There is no lockout detail in the API document, but AmpCon 1.12.1 added manual/automatic user lock/unlock, so repeated failures may lock the account.
+- id: insufficient-privilege
+  http_status: 401
+  operation: createToken
+  message: 'Permission denied, you should use "superadmin" user'
+  cause: The authenticating user is not a superadmin. Only superadmin users may mint an API token.
+  remediation: Use a superadmin account, or promote the account via /api/settings/update_user with type "superadmin".
+- id: invalid-token
+  http_status: 401
+  operation: '*'
+  message: 'Invalid Token'
+  cause: The JWT is expired or malformed. AmpCon 1.12.1 (ticket 857) also fixed a defect where tokens read as invalid because requests were routed to a different backend instance.
+  remediation: Re-mint via POST /token. On AmpCon before 1.12.1 with multiple backend instances, upgrade.
+- id: template-not-found
+  status_code: 500
+  operations: [updateTemplate, deleteTemplate]
+  message: 'template_name <name> does not exist'
+  cause: No template with that name is registered on the controller.
+  remediation: List with GET /api/templates first.
+- id: template-name-required
+  status_code: 500
+  operations: [updateTemplate, deleteTemplate]
+  message: 'template name is required'
+  cause: The request body omitted the template name.
+- id: template-already-exists
+  status_code: 500
+  operation: addTemplate
+  message: 'Template <name> exists'
+  cause: A template of that name is already registered. Names are the natural key.
+  remediation: Use updateTemplate instead of addTemplate.
+- id: platform-invalid
+  status_code: 500
+  operation: addTemplate
+  message: 's_platform name is invalid'
+  cause: The hardware model named in `platform` has not been configured on the controller.
+  remediation: Check GET /api/settings/switch_model for the configured models.
+- id: model-invalid
+  status_code: 500
+  operations: [addGlobalConfig, updateGlobalConfig]
+  message: 'ERROR:[model_name is invalid!]'
+  cause: The switch model named in `model_name` is not configured.
+- id: global-config-name-required
+  status_code: 500
+  operations: [addGlobalConfig, updateGlobalConfig, deleteGlobalConfig]
+  message: 'ERROR:[global_config_name is required!]'
+- id: global-config-exists
+  status_code: 500
+  operation: addGlobalConfig
+  message: 'ERROR:[Create failed, the config already exist!]'
+- id: global-config-not-found
+  status_code: 500
+  operations: [updateGlobalConfig, deleteGlobalConfig]
+  message: 'ERROR:[ Action failed, the config does not exist!]'
+- id: config-empty
+  status_code: 500
+  operations: [addGlobalConfig, updateGlobalConfig]
+  message: 'ERROR:[The config is null]'
+  cause: The configuration body was empty.
+- id: config-in-use
+  status_code: 500
+  operation: deleteGlobalConfig
+  message: 'ERROR:[config is in use!]'
+  cause: The global configuration is still referenced by a deployment. This is the only referential-integrity guard documented in the API.
+  remediation: Reassign or remove the dependent deployments first.
+- id: template-info-required
+  status_code: 500
+  operation: generateSwitchConfig
+  message: 'ERROR:[ template_info]'
+  cause: template_info (and the template name inside it) was missing from the request.
+- id: switch-config-exists
+  status_code: 500
+  operation: generateSwitchConfig
+  message: 'ERROR:[Switch <switch_sn> already exist]'
+  cause: A generated configuration already exists for that serial number.
+- id: switch-not-found
+  status: 400
+  operations: [stageSwitch, decommissionSwitch, auditSwitchLicense, applySwitchLicense]
+  messages:
+  - 'The EC18150004361 switch does not exist'
+  - 'The sn:EC18150004361 switch decom failed, error: cannot find switch EC18150004361'
+  - 'cannot find switch EC18150010436'
+  cause: The serial number is not known to AmpCon.
+  remediation: Confirm with GET /api/switch/all_switch_list or GET /api/switch/switch_list/<sn>.
+- id: switch-unreachable
+  status: '500'
+  operation: decommissionSwitch
+  message: 'cannot connect to switch, please check'
+  envelope_field: info
+  cause: AmpCon could not open a management session to the device. DECOM cannot be completed without device connectivity.
+  remediation: >-
+    Restore management-network reachability. This is the operational limit on reversibility - a switch that cannot
+    be reached cannot be decommissioned through the API.
+- id: switch-already-imported
+  status: 400
+  operation: importSwitch
+  message: 'sn EC1815000436 already exists in AmpCon'
+- id: rma-same-serial
+  status: 400
+  operation: rmaSwitch
+  message: 'new sn number is same as original'
+  cause: old_sn and new_sn are identical.
+- id: group-exists
+  status: 400
+  operations: [addSwitchGroup, updateSwitchGroup]
+  message: '<group-name> group already exist'
+- id: group-not-found
+  status: 400
+  operation: updateSwitchGroup
+  message: '<group-name> group does not exist'
+- id: group-not-found-license
+  status: 500
+  operations: [auditGroupLicenses, applyGroupLicenses]
+  messages: ['The group not exist', 'The group does not exist']
+  note: The same condition is worded two different ways in the same document.
+- id: action-array-invalid
+  status: 400
+  operations: [addSwitchGroup, updateSwitchGroup]
+  message: 'The action_array is invalid'
+  cause: action_array contained a value outside ["audit", "action", "upgrading", "retrieve_config"].
+- id: switches-type-invalid
+  status: 400
+  operations: [addSwitchGroup, updateSwitchGroup]
+  message: 'The switches type invalid'
+  cause: The `switches` field was not an array.
+- id: playbook-unzip-failed
+  status: '500'
+  operation: upsertPlaybook
+  message: 'cannot unzip the upload playbook zip file.'
+  envelope_field: info
+- id: playbook-db-insert-failed
+  status: '500'
+  operation: upsertPlaybook
+  message: 'cannot insert the record into database.'
+  envelope_field: info
+- id: playbook-not-found
+  status: '500'
+  operation: deletePlaybook
+  message: 'name XXX does not exist in database.'
+  envelope_field: info
+- id: playbook-folder-delete-failed
+  status: '500'
+  operation: deletePlaybook
+  message: 'Failed to delete playbook folder.'
+  envelope_field: info
+- id: user-update-failed
+  status: '400 | 500'
+  operation: updateAmpConUser
+  message: '<ERROR msg from backend>'
+  cause: Pass-through of an unstructured backend error. The document does not enumerate the possible values.
+- id: upgrade-failed
+  status: 500
+  operation: 'Upgrade switch (path truncated in the source document)'
+  message: 'upgrade failed, error: xxxxx'
+- id: schedule-start-time-past
+  status: 400
+  operation: 'Group schedule upgrade (path truncated in the source document)'
+  message: '- start time must be later than now'
+gaps:
+- >-
+  No error catalogue is published as a standalone reference; every error above was read out of the per-operation
+  "Request error response" blocks of the Word document.
+- >-
+  There are no stable error identifiers. Two different wordings ("The group not exist" / "The group does not exist")
+  describe the same condition within one document revision, which makes string-matching brittle.

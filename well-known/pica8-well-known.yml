@@ -1,0 +1,73 @@
+generated: '2026-08-26'
+method: probed
+source: Live unauthenticated HTTPS probes, 2026-08-26
+note: >-
+  Pica8 serves NO /.well-known/ document on any host it controls. All five canonical paths returned 404 on
+  www.pica8.com. The single 200 recorded below - a security.txt on pica8-fs.atlassian.net - is Atlassian's own
+  corporate document, served by the Atlassian Cloud platform that hosts Pica8's documentation wiki: its Contact,
+  Policy and Canonical fields all point at atlassian.com, not at pica8.com. It is therefore recorded as a probe
+  result but is NOT counted as a Pica8 surface, and no WellKnown or SecurityTxt pointer is wired into apis.yml.
+  The AmpCon and PICOS API hosts could not be probed at all: both are customer-deployed
+  (https://<ampcon-server-ip>/, https://<device-ip>:<port>/restconf) and no Pica8-operated instance exists on the
+  public internet.
+hosts:
+- host: www.pica8.com
+  role: primary website
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+- host: pica8-fs.atlassian.net
+  role: documentation wiki (Atlassian Cloud tenant; docs.pica8.com redirects here)
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    file: null
+    third_party: true
+    owner: Atlassian
+    note: >-
+      Atlassian's platform-wide security.txt, not Pica8's. Contact
+      https://www.atlassian.com/trust/security/report-a-vulnerability and mailto:security@atlassian.com;
+      Canonical https://www.atlassian.com/.well-known/security.txt; expires 2027-02-04. Not saved to this repo and
+      not credited to Pica8.
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+unprobed_hosts:
+- host: '{ampcon-server-ip}'
+  reason: customer-deployed AmpCon controller; no public instance exists
+- host: '{device-ip}'
+  reason: customer-owned PICOS switch; no public instance exists

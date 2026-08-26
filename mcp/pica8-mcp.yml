@@ -1,0 +1,99 @@
+generated: '2026-08-26'
+method: derived
+source: >-
+  Derived from openapi/pica8-ampcon-openapi.yml. Searched for an official Pica8 MCP server on 2026-08-26 across
+  www.pica8.com, the Pica8 documentation wiki (https://pica8-fs.atlassian.net/wiki), the Pica8 GitHub organisation
+  (https://github.com/pica8), npm and PyPI. None exists.
+status: candidate
+deployment:
+  mode: none
+  endpoint: null
+  install: null
+  package: null
+  auth: unknown
+  verified: searched
+  note: >-
+    Pica8 ships no MCP server - neither a hosted remote endpoint nor a locally-installable stdio package. No
+    endpoint URL was guessed. The tools below are a CANDIDATE surface derived from the AmpCon REST operations
+    this repo transcribed; nothing here is a Pica8 artifact and nothing here is callable today.
+deployment_reality:
+  note: >-
+    Even if Pica8 shipped an MCP server it could not be a hosted one. AmpCon runs on the customer's own
+    infrastructure, so any MCP server for this API would necessarily be local/stdio and pointed at the operator's
+    own controller address, with a superadmin JWT in hand.
+candidate_tools:
+- name: list_switches
+  description: List every switch under AmpCon management with status, management IP and PICOS version.
+  rest: [getAllSwitches]
+  read_only: true
+- name: get_switch
+  description: Get one switch by serial number.
+  rest: [getSwitchBySn]
+  read_only: true
+- name: list_parking_lot
+  description: List switches that registered with AmpCon but have no generated configuration waiting.
+  rest: [getParkingLotSwitches]
+  read_only: true
+- name: list_templates
+  description: List configuration templates and their declared variables.
+  rest: [getTemplates, getTemplateByName]
+  read_only: true
+- name: verify_generated_config
+  description: Dry run - render what the named templates would generate for a switch and diff it against running-config or a backup.
+  rest: [verifyGeneratedConfiguration]
+  read_only: true
+- name: compare_backup_to_running
+  description: Dry run - diff a stored backup snapshot against the switch's running configuration.
+  rest: [compareBackupWithRunningConfig]
+  read_only: true
+- name: list_backups
+  description: List backup configuration snapshots for a switch.
+  rest: [getBackupConfigsBySn, getBackupConfigByDate]
+  read_only: true
+- name: backup_switch
+  description: Capture a new configuration backup snapshot for a switch.
+  rest: [backupSwitchConfiguration]
+  read_only: false
+  consequence: low
+- name: rollback_switch_config
+  description: Restore a switch to a previous backup snapshot.
+  rest: [rollbackBackupConfiguration]
+  read_only: false
+  consequence: high
+  reversal_of: push_config_file
+- name: push_config_file
+  description: Push a stored configuration file onto switches.
+  rest: [pushConfigFileToSwitch]
+  read_only: false
+  consequence: high
+  reversible_by: rollback_switch_config
+- name: stage_switch
+  description: Stage a switch so AmpCon deploys it on next registration.
+  rest: [stageSwitch]
+  read_only: false
+  consequence: high
+  reversible_by: decommission_switch
+- name: decommission_switch
+  description: DECOM a switch - remove it from management and restore factory defaults.
+  rest: [decommissionSwitch]
+  read_only: false
+  consequence: destructive
+- name: audit_licenses
+  description: Audit switch or group license expiry.
+  rest: [auditSwitchLicense, auditGroupLicenses]
+  read_only: true
+- name: list_playbooks
+  description: List Ansible playbooks registered on AmpCon.
+  rest: [getPlaybooks]
+  read_only: true
+- name: list_jobs
+  description: List playbook execution jobs.
+  rest: [getJobs]
+  read_only: true
+excluded_from_candidate_surface:
+- operation: getSystemConfig
+  reason: >-
+    Returns the license portal password and the switch SSH operation password in plaintext. It should not be
+    exposed as an agent tool.
+- operation: updateAmpConUser
+  reason: Creates and privileges AmpCon accounts, including superadmin. Privilege escalation surface.

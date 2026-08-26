@@ -1,0 +1,179 @@
+generated: '2026-08-26'
+method: derived
+source: >-
+  Derived from openapi/pica8-ampcon-openapi.yml response shapes and path keys, which were themselves transcribed
+  from the Pica8 AmpCon API document
+  (https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document)
+api: Pica8 AmpCon Network Controller API
+note: >-
+  AmpCon's contract carries no $ref components and no declared schemas - the published document shows example
+  payloads only. This graph was reconstructed from the natural keys used in path segments and the foreign-key-shaped
+  fields inside those examples. Relationships are inferred from field names and from documented behaviour
+  (e.g. "config is in use" on global-config deletion), and are marked with a confidence level accordingly.
+identifier_style:
+  primary_keys: natural, human-chosen names and hardware serial numbers - not opaque ids
+  detail: >-
+    Templates, global configurations, site configurations, configuration files, groups and playbooks are all keyed
+    by their `name`. Switches are keyed by `sn` (manufacturer serial number) with `hwid` as a secondary hardware
+    identifier. There are no id prefixes and no surrogate ids anywhere in the API. The only numeric id-shaped fields
+    are `parent_id` on configurations and `pid`/`level` on configuration files.
+entities:
+- name: Switch
+  key: sn
+  description: A physical PICOS switch under AmpCon management.
+  fields: [sn, hwid, host_name, mgt_ip, tmp_ip, link_ip_addr, address, domain, current_user, current_password, remark, status, step, topology, version]
+  states: [Parking Lot, Imported, Staged, Provisioning Success, DECOM]
+  operations: [getAllSwitches, getDeployedSwitches, getSwitchBySn, stageSwitch, importSwitch, decommissionSwitch, rmaSwitch]
+- name: ParkingLotEntry
+  key: sn
+  description: A switch that has powered up and registered with AmpCon but has no generated configuration to deploy.
+  fields: [sn, ip, model, address, remark, history_time, last_register, register_count, investigate]
+  operations: [getParkingLotSwitches]
+- name: Template
+  key: name
+  description: A Jinja2 configuration template with declared, type-checked variables, scoped to a hardware platform.
+  fields: [name, description, content, j2_template, params, platform, tag]
+  operations: [getTemplates, getTemplateByName, addTemplate, updateTemplate, deleteTemplate, verifyGeneratedConfiguration]
+- name: GlobalConfiguration
+  key: name
+  description: A model-scoped PICOS configuration body applied as the common base across switches of one model.
+  fields: [name, config, system_model, type, parent_id, default]
+  operations: [getGlobalConfigs, getGlobalConfigByName, addGlobalConfig, updateGlobalConfig, deleteGlobalConfig]
+- name: SiteConfiguration
+  key: name
+  description: The per-switch (site) configuration generated from a global configuration plus one or more templates; this is what a switch deploys with.
+  fields: [name, config, system_model, type, parent_id, default]
+  operations: [getSwitchConfigs, getSwitchConfigByName, generateSwitchConfig, updateSwitchConfig]
+- name: BackupSnapshot
+  key: [switch_sn, backup_date]
+  description: A point-in-time capture of a switch's configuration, and the object a rollback restores from.
+  operations: [getBackupConfigsBySn, getBackupConfigByDate, backupSwitchConfiguration, rollbackBackupConfiguration, compareBackupWithRunningConfig]
+- name: ConfigurationFile
+  key: name
+  description: A configuration fragment stored for the configuration-push function, arranged in a tree.
+  fields: [name, content, description, platform, level, pid]
+  operations: [getConfigFiles, updateConfigFile, deleteConfigFile, pushConfigFileToSwitch]
+- name: SwitchGroup
+  key: name
+  description: A named set of switches plus the set of group-scoped actions permitted against them.
+  fields: [name, sn, action_array]
+  enum_action_array: [audit, action, upgrading, retrieve_config]
+  operations: [getSwitchGroups, addSwitchGroup, updateSwitchGroup, auditGroupLicenses, applyGroupLicenses]
+- name: SwitchModel
+  key: model
+  description: A configured hardware model and the PICOS image AmpCon considers current for it.
+  fields: [model, feature, speed_for_license, up_to_date_version, up_to_date_image_path, up_to_date_image_md5_path, up_to_date_onie_path, manual_upgrade_scripts, patched_install_script, patched_tar_file, script_file_path]
+  operations: [getSwitchModels]
+- name: SystemConfiguration
+  key: singleton
+  description: Controller-level settings including license portal endpoint/credentials and switch SSH operation credentials.
+  fields: [license_portal_url, license_portal_user, license_portal_password, switch_op_user, switch_op_password, security_config, retrieve_config_num]
+  operations: [getSystemConfig]
+  security_note: >-
+    This endpoint returns credentials - the license portal password and the switch SSH operation password - in
+    plaintext to any superadmin token holder. Any agent granted an AmpCon token can read them.
+- name: User
+  key: username
+  description: An AmpCon login account with a role and either global or group scope.
+  fields: [username, password, user_type, group_name, type, email]
+  enum_type: [readonly, operator, admin, superadmin]
+  enum_user_type: [group, global]
+  operations: [updateAmpConUser]
+- name: Playbook
+  key: name
+  description: An Ansible playbook archive registered on AmpCon.
+  fields: [name, description, tag, create_user]
+  operations: [getPlaybooks, upsertPlaybook, deletePlaybook]
+- name: Job
+  key: undocumented
+  description: An execution of a playbook against switches or groups.
+  operations: [getJobs, removeJob]
+- name: OperationLogEntry
+  key: undocumented
+  description: An AmpCon audit/operation log record.
+  fields: [sn, msg, history_time, status, type, count]
+  operations: [getSwitchLogs]
+relationships:
+- from: SiteConfiguration
+  to: GlobalConfiguration
+  type: belongs_to
+  via: template_info.no_generate_global_config
+  confidence: high
+  evidence: generateSwitchConfig request body names the global configuration the site config is generated from
+- from: SiteConfiguration
+  to: Template
+  type: has_many
+  via: template_info.no_generate_template_name (array)
+  confidence: high
+  evidence: 'the 2022-10-28 revision added support for multiple templates per generated configuration'
+- from: SiteConfiguration
+  to: Switch
+  type: belongs_to
+  via: template_info.no_generate_switch_sn
+  confidence: high
+- from: SiteConfiguration
+  to: SwitchModel
+  type: belongs_to
+  via: template_info.no_generate_platform / system_model
+  confidence: high
+- from: Template
+  to: SwitchModel
+  type: belongs_to
+  via: platform
+  confidence: high
+  evidence: 'addTemplate fails with "s_platform name is invalid" when the model is not configured'
+- from: GlobalConfiguration
+  to: SwitchModel
+  type: belongs_to
+  via: model_name / system_model
+  confidence: high
+  evidence: 'addGlobalConfig fails with "ERROR:[model_name is invalid!]"'
+- from: GlobalConfiguration
+  to: SiteConfiguration
+  type: has_many
+  via: parent_id
+  confidence: medium
+  evidence: 'both entities expose a parent_id field and deleting an in-use global config is refused with "config is in use!"'
+- from: BackupSnapshot
+  to: Switch
+  type: belongs_to
+  via: switch-sn path segment
+  confidence: high
+- from: ConfigurationFile
+  to: ConfigurationFile
+  type: belongs_to
+  via: pid (parent id) with level as depth
+  confidence: medium
+  evidence: response carries both pid and level, the shape of a materialised tree
+- from: ConfigurationFile
+  to: SwitchModel
+  type: belongs_to
+  via: platform
+  confidence: high
+- from: SwitchGroup
+  to: Switch
+  type: has_many
+  via: sn (array of serial numbers)
+  confidence: high
+- from: User
+  to: SwitchGroup
+  type: has_many
+  via: group_name (comma-separated) when user_type is "group"
+  confidence: high
+- from: OperationLogEntry
+  to: Switch
+  type: belongs_to
+  via: sn
+  confidence: medium
+  note: the documented example puts an IP address in the sn field, so the join is not clean in practice
+- from: Switch
+  to: SwitchModel
+  type: belongs_to
+  via: model / platform
+  confidence: high
+- from: Job
+  to: Playbook
+  type: belongs_to
+  via: playbook_name
+  confidence: medium
+  evidence: the Run playbook request body names playbook_name, switches[] and group_list[]; the job response shape is not published

@@ -1,0 +1,33 @@
+generated: '2026-08-26'
+method: generated
+source: >-
+  Authored by API Evangelist from openapi/pica8-ampcon-openapi.yml plus conventions/pica8-conventions.yml,
+  errors/pica8-problem-types.yml and lifecycle/pica8-lifecycle.yml. Every operationId referenced was verified
+  against the spec. Pica8 publishes no AGENTS.md and no first-party agent skills - searched www.pica8.com,
+  https://pica8-fs.atlassian.net/wiki and https://github.com/pica8 on 2026-08-26.
+api: Pica8 AmpCon Network Controller API
+skills:
+- name: pica8-onboard-switch
+  file: skills/pica8-onboard-switch.md
+  description: Mint a token, find the switch in the parking lot, generate its site configuration, verify it, stage it, confirm deployment.
+  consequence: high
+  operations: [createToken, getParkingLotSwitches, getSwitchModels, getGlobalConfigs, getTemplates, generateSwitchConfig, verifyGeneratedConfiguration, stageSwitch, getSwitchBySn]
+- name: pica8-change-and-rollback-config
+  file: skills/pica8-change-and-rollback-config.md
+  description: Snapshot, diff, push, verify, roll back - the safe configuration-change loop, built around the one documented reversal path AmpCon has.
+  consequence: high
+  operations: [createToken, getSwitchBySn, backupSwitchConfiguration, getBackupConfigsBySn, compareBackupWithRunningConfig, verifyGeneratedConfiguration, getConfigFiles, pushConfigFileToSwitch, rollbackBackupConfiguration, getSwitchLogs]
+- name: pica8-fleet-audit
+  file: skills/pica8-fleet-audit.md
+  description: Read-only fleet inventory, stuck-switch detection, image drift, group membership, licence expiry and operation log.
+  consequence: low
+  operations: [createToken, getAllSwitches, getDeployedSwitches, getParkingLotSwitches, getImportedSwitches, getSwitchModels, getSwitchGroups, auditSwitchLicense, auditGroupLicenses, getSwitchLogs]
+excluded_operations:
+- operation: getSystemConfig
+  reason: returns the licence portal password and switch SSH password in plaintext
+- operation: updateAmpConUser
+  reason: creates and privileges AmpCon accounts including superadmin
+- operation: applySwitchLicense
+  reason: writes licences to hardware; separated from the audit path deliberately
+- operation: applyGroupLicenses
+  reason: writes licences to hardware across a whole group

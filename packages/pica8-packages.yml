@@ -1,0 +1,130 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  Registry queries against registry.npmjs.org, pypi.org, galaxy.ansible.com, rubygems.org and crates.io, plus the
+  Pica8 GitHub organisation (https://github.com/pica8) via api.github.com, probed 2026-08-26
+summary:
+  official_client_libraries: 0
+  registry_published_packages: 0
+  first_party_repositories: 6
+  finding: >-
+    Pica8 publishes NO client SDK for the AmpCon REST API, in any language, in any package registry. Every
+    unauthenticated registry was queried by name on 2026-08-26: npm has no `pica8` and no `ampcon` package,
+    PyPI has no `pica8` package (the PyPI project named `picos` is an unrelated convex-optimization library and
+    is NOT Pica8's), Ansible Galaxy has no `pica8` namespace, and the two Galaxy collections whose contents
+    mention `picos_config` belong to third-party namespaces, not to Pica8. What Pica8 does distribute is source:
+    six public GitHub repositories of automation content - Ansible playbooks, Jinja2 configuration templates,
+    AmpCon automation scripts and an SNMP OID adapter. None is tagged, released or versioned; a consumer clones a
+    branch. Because there is no release, there is no version and no publication date to read, and the currency
+    signal available is the last commit.
+registries_probed:
+- registry: npm
+  query: pica8
+  result: 404
+- registry: npm
+  query: ampcon
+  result: 404
+- registry: pypi
+  query: pica8
+  result: 404
+- registry: ansible-galaxy
+  query: 'namespace=pica8'
+  result: 200 with 0 collections
+- registry: ansible-galaxy
+  query: 'keywords=picos'
+  result: 200 with 2 collections, both third-party namespaces (my_cynthia, not pica8)
+packages: []
+repositories:
+- name: Ansible
+  official: true
+  registry: github
+  url: https://github.com/pica8/Ansible
+  description: Ansible content for PICOS switch configuration management. Supersedes the archived Configuration-Managers repository.
+  version: null
+  published: null
+  version_note: >-
+    No git tags and no GitHub releases exist, so there is no published version or release date to record. Consumers
+    track a branch.
+  last_commit: '2025-10-10'
+  last_pushed: '2026-08-13'
+  license: none declared
+- name: Jinja_Templates
+  official: true
+  registry: github
+  url: https://github.com/pica8/Jinja_Templates
+  description: Pica8 configuration templates in Jinja2, the same template format consumed by the AmpCon template API.
+  version: null
+  published: null
+  version_note: No releases or tags; unversioned repository.
+  last_commit: '2022-08-04'
+  last_pushed: '2026-08-12'
+  license: none declared
+- name: AmpCon-Automations
+  official: true
+  registry: github
+  url: https://github.com/pica8/AmpCon-Automations
+  description: >-
+    AmpCon automation tooling in Python. The closest thing Pica8 publishes to a client for the AmpCon REST API.
+  version: null
+  published: null
+  version_note: No releases or tags; unversioned repository.
+  last_commit: '2023-02-24'
+  last_pushed: '2023-02-24'
+  license: none declared
+  currency_note: >-
+    Last touched 2023-02-24, against an AmpCon product line that has since shipped 1.13.0, 1.13.1, 1.14.0 and
+    1.14.1. The only automation code Pica8 publishes for its controller API predates four releases of that
+    controller.
+- name: snmp_oid_adapter
+  official: true
+  registry: github
+  url: https://github.com/pica8/snmp_oid_adapter
+  description: SNMP OID adapter for PICOS.
+  version: null
+  published: null
+  version_note: No releases or tags.
+  last_commit: '2026-05-26'
+  last_pushed: '2026-05-26'
+  license: none declared
+- name: network_as_code
+  official: true
+  registry: github
+  url: https://github.com/pica8/network_as_code
+  description: Jinja2-driven code to deploy PICOS and PICOS-V with EVPN.
+  version: null
+  published: null
+  version_note: No releases or tags.
+  last_commit: '2023-05-01'
+  last_pushed: '2023-05-01'
+  license: MIT
+- name: GNS3_Examples
+  official: true
+  registry: github
+  url: https://github.com/pica8/GNS3_Examples
+  description: GNS3 topology examples for simulating PICOS deployments.
+  version: null
+  published: null
+  version_note: No releases or tags.
+  last_commit: '2023-02-15'
+  last_pushed: '2023-02-15'
+  license: none declared
+deprecated_repositories:
+- name: Configuration-Managers
+  url: https://github.com/pica8/Configuration-Managers
+  status: deprecated
+  note: 'Repository description reads "Deprecated. Updated here: https://github.com/pica8/Ansible".'
+  last_pushed: '2023-03-07'
+not_first_party:
+- name: conserve
+  url: https://github.com/pica8/conserve
+  note: >-
+    A Rust backup tool present in the pica8 GitHub organisation but described as "robust portable backup tool in
+    Rust" - it is a fork of an unrelated upstream project, not Pica8 software, and is excluded from the
+    first-party list.
+binary_distributions:
+- name: PicOS-V
+  url: https://www.pica8.com/picos-v-download/
+  note: Virtual PICOS image, distributed as a gated download from pica8.com rather than through a package registry.
+- name: AmpCon downloads
+  url: https://www.pica8.com/ampcon-downloads/
+  note: AmpCon controller distribution, gated download.
