@@ -47,78 +47,304 @@ tags_raw:
   - netconf
   - telemetry
 apis:
-  - name: Pica8 AmpCon Network Controller API
-    description: >-
-      JSON REST API on the customer-deployed AmpCon controller. A JWT bearer token is minted from
-      POST /token by a superadmin user and carried in the Authorization header on every call. The API
-      covers Jinja2 configuration templates, global and per-switch (site) configuration generation,
-      configuration backup / restore / diff, switch lifecycle (stage, import, DECOM, RMA, upgrade),
-      switch groups and group-scoped licensing actions, controller settings and user administration,
-      and Ansible playbook and job management.
-    humanURL: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document
-    baseURL: https://{ampcon-server-ip}/
-    tags:
-      - Network Automation
-      - Network Management
-      - Open Networking
-      - Configuration Management
-      - Provisioning
-    tags_raw:
-      - network-automation
-      - network-management
-      - open-networking
-      - configuration-management
-      - provisioning
-    properties:
-      - type: Documentation
-        url: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/overview
-      - type: APIReference
-        url: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document
-      - type: OpenAPI
-        url: openapi/pica8-ampcon-openapi.yml
-      - type: Overlay
-        url: overlays/pica8-ampcon-overlay.yaml
-      - type: Authentication
-        url: authentication/pica8-authentication.yml
-      - type: Conventions
-        url: conventions/pica8-conventions.yml
-      - type: ErrorCatalog
-        url: errors/pica8-problem-types.yml
-      - type: DataModel
-        url: data-model/pica8-data-model.yml
-      - type: ChangeLog
-        url: changelog/pica8-changelog.yml
-  - name: PICOS RESTCONF / NETCONF / gNMI Device API
-    description: >-
-      Standards-based on-device programmability in the PICOS network operating system. RESTCONF
-      (RFC 8040) exposes OPTIONS/HEAD/GET/POST/PATCH/PUT/DELETE over YANG-modelled configuration and
-      state at /restconf/data with application/yang-data+json and application/yang-data+xml encodings
-      and HTTP Basic authentication. NETCONF (RFC 6241) supports get, get-config, get-schema
-      (RFC 6022) and edit-config over the same YANG modules shipped in /pica/etc/common/data-models.
-      gNMI over gRPC provides dial-in Get and Subscribe telemetry with the switch acting as gRPC server.
-    humanURL: https://pica8-fs.atlassian.net/wiki/spaces/Picos48white/pages/1157576048/RESTCONF+Configuration
-    baseURL: https://{device-ip}:{restconf-port}/restconf
-    tags:
-      - RESTCONF
-      - NETCONF
-      - Telemetry
-      - Network Operating System
-      - Network Automation
-      - YANG
-    tags_raw:
-      - restconf
-      - netconf
-      - telemetry
-      - network-operating-system
-      - network-automation
-      - yang
-    properties:
-      - type: Documentation
-        url: https://pica8-fs.atlassian.net/wiki/spaces/Picos48white/pages/1157576048/RESTCONF+Configuration
-      - type: APIReference
-        url: https://pica8-fs.atlassian.net/wiki/spaces/Picos48white/pages/1157576105/RESTCONF+Operation+Methods
-      - type: Conformance
-        url: conformance/pica8-conformance.yml
+- name: PICOS RESTCONF / NETCONF / gNMI Device API
+  description: >-
+    Standards-based on-device programmability in the PICOS network operating system. RESTCONF (RFC 8040)
+    exposes OPTIONS/HEAD/GET/POST/PATCH/PUT/DELETE over YANG-modelled configuration and state at /restconf/data
+    with application/yang-data+json and application/yang-data+xml encodings and HTTP Basic authentication.
+    NETCONF (RFC 6241) supports get, get-config, get-schema (RFC 6022) and edit-config over the same YANG
+    modules shipped in /pica/etc/common/data-models. gNMI over gRPC provides dial-in Get and Subscribe
+    telemetry with the switch acting as gRPC server.
+  humanURL: >-
+    https://pica8-fs.atlassian.net/wiki/spaces/Picos48white/pages/1157576048/RESTCONF+Configuration
+  baseURL: https://{device-ip}:{restconf-port}/restconf
+  tags:
+  - RESTCONF
+  - NETCONF
+  - Telemetry
+  - Network Operating System
+  - Network Automation
+  - YANG
+  tags_raw:
+  - restconf
+  - netconf
+  - telemetry
+  - network-operating-system
+  - network-automation
+  - yang
+  properties:
+  - type: Documentation
+    url: >-
+      https://pica8-fs.atlassian.net/wiki/spaces/Picos48white/pages/1157576048/RESTCONF+Configuration
+  - type: APIReference
+    url: >-
+      https://pica8-fs.atlassian.net/wiki/spaces/Picos48white/pages/1157576105/RESTCONF+Operation+Methods
+  - type: Conformance
+    url: conformance/pica8-conformance.yml
+- aid: pica8:pica8-backup-api
+  name: Pica8 Backup API
+  description: Configuration backup snapshots and rollback.
+  humanURL: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document
+  baseURL: https://{ampcon-server-ip}/
+  tags:
+  - Backup
+  properties:
+  - type: OpenAPI
+    url: openapi/pica8-backup-api-openapi.yml
+  - type: Documentation
+    url: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/overview
+  - type: APIReference
+    url: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document
+  - type: Authentication
+    url: authentication/pica8-authentication.yml
+  - type: Conventions
+    url: conventions/pica8-conventions.yml
+  - type: ErrorCatalog
+    url: errors/pica8-problem-types.yml
+  - type: DataModel
+    url: data-model/pica8-data-model.yml
+  - type: ChangeLog
+    url: changelog/pica8-changelog.yml
+- aid: pica8:pica8-configuration-api
+  name: Pica8 Configuration API
+  description: Global and per-switch (site) configuration generation and comparison.
+  humanURL: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document
+  baseURL: https://{ampcon-server-ip}/
+  tags:
+  - Configuration
+  properties:
+  - type: OpenAPI
+    url: openapi/pica8-configuration-api-openapi.yml
+  - type: Documentation
+    url: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/overview
+  - type: APIReference
+    url: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document
+  - type: Authentication
+    url: authentication/pica8-authentication.yml
+  - type: Conventions
+    url: conventions/pica8-conventions.yml
+  - type: ErrorCatalog
+    url: errors/pica8-problem-types.yml
+  - type: DataModel
+    url: data-model/pica8-data-model.yml
+  - type: ChangeLog
+    url: changelog/pica8-changelog.yml
+- aid: pica8:pica8-configurationfile-api
+  name: Pica8 Configuration File API
+  description: Configuration files used by the configuration-push function.
+  humanURL: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document
+  baseURL: https://{ampcon-server-ip}/
+  tags:
+  - ConfigurationFile
+  properties:
+  - type: OpenAPI
+    url: openapi/pica8-configurationfile-api-openapi.yml
+  - type: Documentation
+    url: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/overview
+  - type: APIReference
+    url: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document
+  - type: Authentication
+    url: authentication/pica8-authentication.yml
+  - type: Conventions
+    url: conventions/pica8-conventions.yml
+  - type: ErrorCatalog
+    url: errors/pica8-problem-types.yml
+  - type: DataModel
+    url: data-model/pica8-data-model.yml
+  - type: ChangeLog
+    url: changelog/pica8-changelog.yml
+- aid: pica8:pica8-group-api
+  name: Pica8 Group API
+  description: Switch groups and their permitted action sets.
+  humanURL: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document
+  baseURL: https://{ampcon-server-ip}/
+  tags:
+  - Group
+  properties:
+  - type: OpenAPI
+    url: openapi/pica8-group-api-openapi.yml
+  - type: Documentation
+    url: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/overview
+  - type: APIReference
+    url: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document
+  - type: Authentication
+    url: authentication/pica8-authentication.yml
+  - type: Conventions
+    url: conventions/pica8-conventions.yml
+  - type: ErrorCatalog
+    url: errors/pica8-problem-types.yml
+  - type: DataModel
+    url: data-model/pica8-data-model.yml
+  - type: ChangeLog
+    url: changelog/pica8-changelog.yml
+- aid: pica8:pica8-job-api
+  name: Pica8 Job API
+  description: Ansible playbook execution jobs.
+  humanURL: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document
+  baseURL: https://{ampcon-server-ip}/
+  tags:
+  - Job
+  properties:
+  - type: OpenAPI
+    url: openapi/pica8-job-api-openapi.yml
+  - type: Documentation
+    url: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/overview
+  - type: APIReference
+    url: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document
+  - type: Authentication
+    url: authentication/pica8-authentication.yml
+  - type: Conventions
+    url: conventions/pica8-conventions.yml
+  - type: ErrorCatalog
+    url: errors/pica8-problem-types.yml
+  - type: DataModel
+    url: data-model/pica8-data-model.yml
+  - type: ChangeLog
+    url: changelog/pica8-changelog.yml
+- aid: pica8:pica8-license-api
+  name: Pica8 License API
+  description: Per-switch and per-group license audit and license application.
+  humanURL: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document
+  baseURL: https://{ampcon-server-ip}/
+  tags:
+  - License
+  properties:
+  - type: OpenAPI
+    url: openapi/pica8-license-api-openapi.yml
+  - type: Documentation
+    url: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/overview
+  - type: APIReference
+    url: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document
+  - type: Authentication
+    url: authentication/pica8-authentication.yml
+  - type: Conventions
+    url: conventions/pica8-conventions.yml
+  - type: ErrorCatalog
+    url: errors/pica8-problem-types.yml
+  - type: DataModel
+    url: data-model/pica8-data-model.yml
+  - type: ChangeLog
+    url: changelog/pica8-changelog.yml
+- aid: pica8:pica8-playbook-api
+  name: Pica8 Playbook API
+  description: Ansible playbook management.
+  humanURL: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document
+  baseURL: https://{ampcon-server-ip}/
+  tags:
+  - Playbook
+  properties:
+  - type: OpenAPI
+    url: openapi/pica8-playbook-api-openapi.yml
+  - type: Documentation
+    url: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/overview
+  - type: APIReference
+    url: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document
+  - type: Authentication
+    url: authentication/pica8-authentication.yml
+  - type: Conventions
+    url: conventions/pica8-conventions.yml
+  - type: ErrorCatalog
+    url: errors/pica8-problem-types.yml
+  - type: DataModel
+    url: data-model/pica8-data-model.yml
+  - type: ChangeLog
+    url: changelog/pica8-changelog.yml
+- aid: pica8:pica8-settings-api
+  name: Pica8 Settings API
+  description: Controller system settings, switch model catalog and user administration.
+  humanURL: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document
+  baseURL: https://{ampcon-server-ip}/
+  tags:
+  - Settings
+  properties:
+  - type: OpenAPI
+    url: openapi/pica8-settings-api-openapi.yml
+  - type: Documentation
+    url: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/overview
+  - type: APIReference
+    url: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document
+  - type: Authentication
+    url: authentication/pica8-authentication.yml
+  - type: Conventions
+    url: conventions/pica8-conventions.yml
+  - type: ErrorCatalog
+    url: errors/pica8-problem-types.yml
+  - type: DataModel
+    url: data-model/pica8-data-model.yml
+  - type: ChangeLog
+    url: changelog/pica8-changelog.yml
+- aid: pica8:pica8-switch-api
+  name: Pica8 Switch API
+  description: 'Switch inventory and lifecycle: stage, import, DECOM, RMA, logs.'
+  humanURL: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document
+  baseURL: https://{ampcon-server-ip}/
+  tags:
+  - Switch
+  properties:
+  - type: OpenAPI
+    url: openapi/pica8-switch-api-openapi.yml
+  - type: Documentation
+    url: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/overview
+  - type: APIReference
+    url: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document
+  - type: Authentication
+    url: authentication/pica8-authentication.yml
+  - type: Conventions
+    url: conventions/pica8-conventions.yml
+  - type: ErrorCatalog
+    url: errors/pica8-problem-types.yml
+  - type: DataModel
+    url: data-model/pica8-data-model.yml
+  - type: ChangeLog
+    url: changelog/pica8-changelog.yml
+- aid: pica8:pica8-template-api
+  name: Pica8 Template API
+  description: Jinja2 configuration templates and their declared variables.
+  humanURL: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document
+  baseURL: https://{ampcon-server-ip}/
+  tags:
+  - Template
+  properties:
+  - type: OpenAPI
+    url: openapi/pica8-template-api-openapi.yml
+  - type: Documentation
+    url: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/overview
+  - type: APIReference
+    url: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document
+  - type: Authentication
+    url: authentication/pica8-authentication.yml
+  - type: Conventions
+    url: conventions/pica8-conventions.yml
+  - type: ErrorCatalog
+    url: errors/pica8-problem-types.yml
+  - type: DataModel
+    url: data-model/pica8-data-model.yml
+  - type: ChangeLog
+    url: changelog/pica8-changelog.yml
+- aid: pica8:pica8-token-api
+  name: Pica8 Token API
+  description: JWT token minting.
+  humanURL: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document
+  baseURL: https://{ampcon-server-ip}/
+  tags:
+  - Token
+  properties:
+  - type: OpenAPI
+    url: openapi/pica8-token-api-openapi.yml
+  - type: Documentation
+    url: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/overview
+  - type: APIReference
+    url: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document
+  - type: Authentication
+    url: authentication/pica8-authentication.yml
+  - type: Conventions
+    url: conventions/pica8-conventions.yml
+  - type: ErrorCatalog
+    url: errors/pica8-problem-types.yml
+  - type: DataModel
+    url: data-model/pica8-data-model.yml
+  - type: ChangeLog
+    url: changelog/pica8-changelog.yml
 maintainers:
   - FN: Kin Lane
     email: kin@apievangelist.com
