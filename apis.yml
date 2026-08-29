@@ -13,6 +13,18 @@ description: >-
   (stage/import/DECOM/RMA/upgrade), grouping, licensing, settings and Ansible playbooks and jobs. Both
   are customer-deployed: there is no Pica8-hosted API endpoint, so every base URL is the operator's own
   controller or switch address.
+deliveryModel:
+  model: saas
+  open_source: false
+  commercial: true
+  callable_host: false
+  label: Hosted service · you call their endpoint
+  confidence: medium
+  source:
+  - openapi
+  - pricing
+  generated: '2026-08-28'
+  method: derived
 image: https://www.pica8.com/images/pica8-logo.png
 url: https://raw.githubusercontent.com/api-evangelist/pica8/refs/heads/main/apis.yml
 x-type: company
