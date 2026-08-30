@@ -1,0 +1,155 @@
+openapi: 3.2.0
+info:
+  title: Pica8 AmpCon Network Controller Job API
+  version: 1.12.1
+  summary: JSON REST API of the customer-deployed Pica8 AmpCon network controller.
+  description: 'Machine-readable transcription of the REST API that Pica8 publishes for its AmpCon Network Controller.
+
+
+    PROVENANCE — read before using. Pica8 does **not** publish an OpenAPI description. This document was transcribed by API Evangelist, operation by operation, from Pica8''s own published API reference: the `AmpCon 1.12.0 API document 20230625.docx` attachment on the public AmpCon documentation wiki page listed in `externalDocs` (page 753668, space `ampcon`, AmpCon version 1.12.1, update time 2023/06/25). Every path, method, header, request field, example value and error message below is copied from that document. Nothing has been invented, extrapolated or inferred: where the source document is incomplete or self-inconsistent that is recorded in `x-documentation-gaps` and in the affected operation''s description rather than being filled in. This is a derived artifact, not a first-party Pica8 contract.
+
+
+    DEPLOYMENT — AmpCon is customer-installed software. There is no Pica8-hosted API endpoint; the server variable in `servers[]` is the operator''s own AmpCon appliance address, exactly as the source document writes it (`https://<ampcon-server-ip>/`).
+
+
+    AUTHENTICATION — `POST /token` exchanges AmpCon web login credentials for a JWT, which is then sent as `Authorization: Bearer <token>`. Only `superadmin` users may mint a token or call the API.
+
+
+    ERROR SIGNALLING — AmpCon reports outcome in the response BODY, in a `status` or `status_code` field (200 / 400 / 500), together with a human-readable `msg`, `message` or `info` string. The document does not guarantee that the HTTP status line mirrors the body, so clients must read the body.'
+  contact:
+    name: Pica8 Support
+    url: https://www.pica8.com/support/
+  x-provenance:
+    method: derived
+    derived-by: API Evangelist enrichment pipeline
+    derived-on: '2026-08-26'
+    derived-from: 'https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document (attachment: AmpCon 1.12.0 API document 20230625.docx, AmpCon version 1.12.1, update time 2023/06/25)'
+    first-party: false
+    verbatim: false
+    note: Transcribed from the provider's published prose/Word API reference. Not published by Pica8 as OpenAPI.
+  x-documentation-gaps:
+  - operation: Upgrade switch (section 4.11)
+    gap: The URL in the published document is truncated to `https://<ampcon-server-ip>/api/` and the HTTP method field is blank. Content-Type is multipart/form-data and the input is `[sn, files]`. The path was NOT guessed and the operation is therefore absent from paths[].
+  - operation: Group schedule upgrade (section 4.18)
+    gap: The URL in the published document is truncated to `https://<ampcon-server-ip>/api/`. Method POST, Content-Type multipart/form-data, input `[name, start_date, end_date, files]`. Path not guessed; operation absent from paths[].
+  - operation: Run playbook (section 6.4)
+    gap: The URL in the published document is truncated to `https://<ampcon-server-ip>/api/`. Method POST, Content-Type application/json, input includes playbook_name, playbook_dir, switches[], switch_checkall, group_list[], vars and a scheduled object with type DIRECT|ONCE|SCHEDULED. Path not guessed; operation absent from paths[].
+  - operation: Get configuration file by name (section 3.4.2)
+    gap: The published document gives the same URL (`/api/config_files`) for both the list and the filter-by-name variant, with no name parameter. Only the list form is described here.
+  - operation: Delete group (section 4.17)
+    gap: The published document assigns `POST /api/switch/groups/update` to BOTH group update and group delete. Modelled as a single overloaded operation.
+  - operation: Update AmpCon login user (section 5.3)
+    gap: The published document records the method as GET while also specifying a JSON request body. Transcribed as documented.
+servers:
+- url: https://{ampcon-server-ip}
+  description: Customer-deployed AmpCon Network Controller. Written `https://<ampcon-server-ip>/` in the source document.
+  variables:
+    ampcon-server-ip:
+      default: ampcon.example.internal
+      description: Address of the operator's own AmpCon server.
+security:
+- bearerAuth: []
+tags:
+- name: Job
+  description: Ansible playbook execution jobs.
+paths:
+  /api/ansible/jobs:
+    get:
+      operationId: getJobs
+      summary: Get job information list
+      description: Returns the list of playbook execution jobs on AmpCon.
+      tags:
+      - Job
+      responses:
+        '200':
+          description: Success. AmpCon returns a message plus a status/status_code field in the body; the HTTP status line is not the primary error signal.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+                  status_code:
+                    type: integer
+                  status:
+                    type: integer
+                  info:
+                    type: string
+                  message:
+                    type: string
+        '500':
+          description: Documented error response. AmpCon reports the failure in the body (`status` / `status_code` of 400 or 500) alongside a human-readable message.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+                  status_code:
+                    type: integer
+                  status:
+                    type: integer
+                  info:
+                    type: string
+                  message:
+                    type: string
+  /api/ansible/jobs/delete:
+    post:
+      operationId: removeJob
+      summary: Remove a job
+      description: Removes a playbook execution job.
+      tags:
+      - Job
+      responses:
+        '200':
+          description: Success. AmpCon returns a message plus a status/status_code field in the body; the HTTP status line is not the primary error signal.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+                  status_code:
+                    type: integer
+                  status:
+                    type: integer
+                  info:
+                    type: string
+                  message:
+                    type: string
+        '500':
+          description: Documented error response. AmpCon reports the failure in the body (`status` / `status_code` of 400 or 500) alongside a human-readable message.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+                  status_code:
+                    type: integer
+                  status:
+                    type: integer
+                  info:
+                    type: string
+                  message:
+                    type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT minted by POST /token from AmpCon web login credentials. Only `superadmin` level users may mint a token. Sent as `Authorization: Bearer <token>`. An expired or invalid token returns the message `Invalid Token`.'
+externalDocs:
+  description: Pica8 AmpCon API document (source of this transcription)
+  url: https://pica8-fs.atlassian.net/wiki/spaces/ampcon/pages/753668/AmpCon+API+document
