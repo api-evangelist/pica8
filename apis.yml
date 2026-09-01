@@ -33,17 +33,17 @@ created: '2026-08-26'
 modified: '2026-08-26'
 specificationVersion: '0.23'
 tags:
-  - networking
-  - open-networking
-  - software-defined-networking
-  - network-automation
-  - network-operating-system
+  - Networking
+  - Open Networking
+  - Software Defined Networking
+  - Network Automation
+  - Network Operating System
   - white-box-switching
-  - network-management
-  - campus-networking
-  - data-center-networking
-  - restconf
-  - netconf
+  - Network Management
+  - Campus Networking
+  - Data Center Networking
+  - RESTCONF
+  - NETCONF
   - Telemetry
 tags_raw:
   - networking
@@ -71,12 +71,12 @@ apis:
     https://pica8-fs.atlassian.net/wiki/spaces/Picos48white/pages/1157576048/RESTCONF+Configuration
   baseURL: https://{device-ip}:{restconf-port}/restconf
   tags:
-  - restconf
-  - netconf
+  - RESTCONF
+  - NETCONF
   - Telemetry
-  - network-operating-system
-  - network-automation
-  - yang
+  - Network Operating System
+  - Network Automation
+  - YANG
   tags_raw:
   - restconf
   - netconf
