@@ -25,6 +25,20 @@ deliveryModel:
   - pricing
   generated: '2026-08-28'
   method: derived
+accessModel:
+  pricing: unknown
+  onboarding: unknown
+  trial: false
+  try_now: false
+  public: false
+  label: Unknown
+  confidence: low
+  source:
+  - authentication
+  - rate-limits
+  - security
+  generated: '2026-09-03'
+  method: derived
 image: https://www.pica8.com/images/pica8-logo.png
 url: https://raw.githubusercontent.com/api-evangelist/pica8/refs/heads/main/apis.yml
 x-type: company
@@ -413,8 +427,9 @@ common:
     url: conformance/pica8-conformance.yml
   - type: Packages
     url: packages/pica8-packages.yml
-  - type: MCPServer
+  - type: X-MCPServerCandidate
     url: mcp/pica8-mcp.yml
+    note: 'Renamed from MCPServer 2026-09-03 (roadmap#247): the manifest self-describes as status: candidate — a tool list derived from the published API contracts, not an existing server. The scorer already read the manifest and reported mcp_server correctly; the MCPServer type was crediting the artifact-type surfaces with a server that does not exist.'
   - type: LLMsTxt
     url: llms/pica8-llms.txt
   - type: Plans
