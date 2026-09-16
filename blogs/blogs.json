@@ -16,6 +16,13 @@
       "method": "discovered"
     },
     {
+      "source": "https://www.pica8.com/blog/feed/",
+      "feed_url": "https://www.pica8.com/blog/feed/",
+      "title": "",
+      "saved": 0,
+      "method": "feed"
+    },
+    {
       "source": "https://www.pica8.com/feed/",
       "feed_url": "https://www.pica8.com/feed/",
       "title": "",
@@ -24,5 +31,5 @@
     }
   ],
   "post_count": 8,
-  "fetched": "2026-09-06T19:17:18Z"
+  "fetched": "2026-09-13T13:00:00Z"
 }
