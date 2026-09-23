@@ -3,19 +3,7 @@ info:
   title: Pica8 AmpCon Network Controller Token API
   version: 1.12.1
   summary: JSON REST API of the customer-deployed Pica8 AmpCon network controller.
-  description: 'Machine-readable transcription of the REST API that Pica8 publishes for its AmpCon Network Controller.
-
-
-    PROVENANCE — read before using. Pica8 does **not** publish an OpenAPI description. This document was transcribed by API Evangelist, operation by operation, from Pica8''s own published API reference: the `AmpCon 1.12.0 API document 20230625.docx` attachment on the public AmpCon documentation wiki page listed in `externalDocs` (page 753668, space `ampcon`, AmpCon version 1.12.1, update time 2023/06/25). Every path, method, header, request field, example value and error message below is copied from that document. Nothing has been invented, extrapolated or inferred: where the source document is incomplete or self-inconsistent that is recorded in `x-documentation-gaps` and in the affected operation''s description rather than being filled in. This is a derived artifact, not a first-party Pica8 contract.
-
-
-    DEPLOYMENT — AmpCon is customer-installed software. There is no Pica8-hosted API endpoint; the server variable in `servers[]` is the operator''s own AmpCon appliance address, exactly as the source document writes it (`https://<ampcon-server-ip>/`).
-
-
-    AUTHENTICATION — `POST /token` exchanges AmpCon web login credentials for a JWT, which is then sent as `Authorization: Bearer <token>`. Only `superadmin` users may mint a token or call the API.
-
-
-    ERROR SIGNALLING — AmpCon reports outcome in the response BODY, in a `status` or `status_code` field (200 / 400 / 500), together with a human-readable `msg`, `message` or `info` string. The document does not guarantee that the HTTP status line mirrors the body, so clients must read the body.'
+  description: Machine-readable transcription of the REST API that Pica8 publishes for its AmpCon Network Controller.
   contact:
     name: Pica8 Support
     url: https://www.pica8.com/support/
@@ -57,7 +45,7 @@ paths:
     post:
       operationId: createToken
       summary: Mint a JWT bearer token
-      description: 'Exchanges AmpCon web login credentials for a JWT bearer token. Only `superadmin` level users are permitted to mint a token and call the API; any other user is refused. The returned token key is sent on every subsequent request as `Authorization: Bearer <token>`. An expired or invalid token yields the message `Invalid Token`.'
+      description: 'Exchanges AmpCon web login credentials for a JWT bearer token. Only `superadmin` level users are permitted to mint a token and call the API; any other user is refused. The returned token key is sent on every subsequent request as `Authorization: Bearer `. An expired or invalid token yields the message `Invalid Token`.'
       tags:
       - Token
       responses:

@@ -1,0 +1,40 @@
+{
+  "provider": "pica8",
+  "sources": [
+    "_original/pica8-ampcon-openapi.yml"
+  ],
+  "outputs": [
+    "pica8-backup-api-openapi.yml",
+    "pica8-configuration-api-openapi.yml",
+    "pica8-configurationfile-api-openapi.yml",
+    "pica8-group-api-openapi.yml",
+    "pica8-job-api-openapi.yml",
+    "pica8-license-api-openapi.yml",
+    "pica8-playbook-api-openapi.yml",
+    "pica8-settings-api-openapi.yml",
+    "pica8-switch-api-openapi.yml",
+    "pica8-template-api-openapi.yml",
+    "pica8-token-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [
+    "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "pica8-ampcon-openapi.yml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "apis.yml register: already-registered"
+  ],
+  "skipped": [
+    "pica8-backup-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "pica8-configuration-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "pica8-configurationfile-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "pica8-group-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "pica8-job-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "pica8-license-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "pica8-playbook-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "pica8-settings-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "pica8-switch-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "pica8-template-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "pica8-token-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
+}
